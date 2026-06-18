@@ -15,6 +15,7 @@ milfo — バックエンド API
 
 from fastapi import FastAPI, Query, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
 import yfinance as yf
 import sqlite3
 import json
@@ -32,10 +33,15 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# ── フロントエンド配信 ────────────────────────────────────────────────
+@app.get("/")
+def serve_index():
+    return FileResponse(Path(__file__).resolve().parent / "index.html")
+
 # ── キャッシュ設定 ────────────────────────────────────────────────────
 STOCK_TTL = 6 * 3600   # 銘柄データ: 6時間
 RATE_TTL  = 600        # 為替レート: 10分
-DB_PATH   = Path(__file__).parent / "cache.db"
+DB_PATH   = Path(__file__).resolve().parent / "cache.db"
 
 _db_lock = threading.Lock()
 
