@@ -105,9 +105,9 @@ def get_stock_data(ticker: str, market: str) -> dict:
 
 # ── UI ───────────────────────────────────────────────────────────────
 query  = st.text_input("企業名・ティッカーで検索（英語で入力：Toyota / Apple）")
-market = st.selectbox("市場", ["JP", "US"])
+market = st.selectbox("市場", [None, "JP", "US"], format_func=lambda x: "選択してください" if x is None else x)
 
-if query:
+if query and market:
     candidates = search_tickers(query, market)
     if candidates:
         labels   = [f"{c['name']}（{c['ticker']}）" for c in candidates]
