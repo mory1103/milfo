@@ -111,8 +111,12 @@ if query:
     candidates = search_tickers(query, market)
     if candidates:
         labels   = [f"{c['name']}（{c['ticker']}）" for c in candidates]
-        selected = st.selectbox("候補から選択", labels)
-        ticker   = candidates[labels.index(selected)]["ticker"]
+        selected = st.selectbox("候補から選択", [None] + labels, format_func=lambda x: "選択してください" if x is None else x)
+
+        if selected is None:
+            st.stop()
+
+        ticker = candidates[labels.index(selected)]["ticker"]
 
         try:
             data = get_stock_data(ticker, market)
