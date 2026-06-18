@@ -1,0 +1,394 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>harel — もやもやを、可視化する</title>
+<!-- スタイルは style.css に分離。同じフォルダに置いてください -->
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<!-- 起動時のイントロ：ロゴ＋キャッチコピーがフェードイン→フェードアウト -->
+<div id="splash">
+  <p class="logo">harel</p>
+  <p class="copy">もやもやを、可視化する</p>
+</div>
+
+<div class="wrap">
+  <header>
+    <!-- 名前は未確定。harel / cotoka / skima、ここを書き換えればOK -->
+    <h1>harel</h1>
+    <p>もやもやを、可視化する</p>
+  </header>
+
+  <!-- ========== 入力ウィザード ========== -->
+  <div class="card" id="wizard">
+
+    <!-- 終了までのメーター（ステップ移動で伸びる） -->
+    <div class="meter">
+      <div class="meter-track"><div class="meter-fill" id="meterFill"></div></div>
+      <span class="meter-label" id="meterLabel">1 / 6</span>
+    </div>
+
+    <!-- STEP 1: What -->
+    <section class="step is-active" data-step="1">
+      <p class="q">今の「もやもや」</p>
+      <p class="hint">ヒント：うまくまとまってなくて大丈夫！</p>
+      <textarea id="f-what" placeholder="例）上司に怒られて辛かった、なんだか悲しい"></textarea>
+      <div class="row">
+        <button class="btn-primary btn-wide" onclick="next()">つぎへ</button>
+      </div>
+    </section>
+
+    <!-- STEP 2: When（時制） -->
+    <section class="step" data-step="2">
+      <p class="q">いつのこと？</p>
+      <p class="hint">ヒント：だいたいでOK</p>
+      <div class="opts" id="f-whenRel">
+        <label class="opt"><input type="radio" name="whenRel" value="ついさっき">ついさっき</label>
+        <label class="opt"><input type="radio" name="whenRel" value="今日">今日</label>
+        <label class="opt"><input type="radio" name="whenRel" value="昨日">昨日</label>
+        <label class="opt"><input type="radio" name="whenRel" value="もっと前">もっと前</label>
+      </div>
+      <div class="row">
+        <button class="btn-ghost" onclick="back()">もどる</button>
+        <button class="btn-primary" onclick="next()">つぎへ</button>
+      </div>
+    </section>
+
+    <!-- STEP 3: 何があったの（When日付 / Where / Who） -->
+    <section class="step" data-step="3">
+      <p class="q">何があったの？</p>
+      <p class="hint">ヒント：ゆっくり、その時を思い出してみよう</p>
+      <div class="field" id="dateField" style="display:none">
+        <label>いつ（日付）</label>
+        <input type="date" id="f-date">
+      </div>
+      <div class="field">
+        <label>どこで</label>
+        <input type="text" id="f-where" placeholder="例）自宅のデスク、オンライン会議中">
+      </div>
+      <div class="field">
+        <label>だれと／だれが</label>
+        <input type="text" id="f-who" placeholder="例）上司のAさん、自分ひとりの時">
+      </div>
+      <div class="row">
+        <button class="btn-ghost" onclick="back()">もどる</button>
+        <button class="btn-primary" onclick="next()">つぎへ</button>
+      </div>
+    </section>
+
+    <!-- STEP 4: 体の反応（How） -->
+    <section class="step" data-step="4">
+      <p class="q">その時の体の反応は？</p>
+      <p class="hint">複数選択可</p>
+      <div class="opts" id="f-body">
+        <label class="opt"><input type="checkbox" value="もやもや・不安">もやもや・不安</label>
+        <label class="opt"><input type="checkbox" value="頭痛・眩暈">頭痛・眩暈</label>
+        <label class="opt"><input type="checkbox" value="動悸・息切れ">動悸・息切れ</label>
+        <label class="opt"><input type="checkbox" value="パニック">パニック</label>
+        <label class="opt"><input type="checkbox" value="手・足の反応">手・足の反応（震え・冷えなど）</label>
+        <label class="opt"><input type="checkbox" value="その他">その他</label>
+      </div>
+      <div class="field" style="margin-top:12px">
+        <label>補足（あれば）</label>
+        <input type="text" id="f-bodyOther" placeholder="例）昔のことがフラッシュバックした">
+      </div>
+      <div class="row">
+        <button class="btn-ghost" onclick="back()">もどる</button>
+        <button class="btn-primary" onclick="next()">つぎへ</button>
+      </div>
+    </section>
+
+    <!-- STEP 5: Why（自動思考に寄せた問い。元の「なぜ」も残しています） -->
+    <section class="step" data-step="5">
+      <p class="q">どうしてその反応が出たと思う？</p>
+      <p class="hint">ヒント：その時、頭にどんな考えがよぎった？</p>
+      <textarea id="f-why" placeholder="例）「また私のせいだ」と思った"></textarea>
+      <div class="row">
+        <button class="btn-ghost" onclick="back()">もどる</button>
+        <button class="btn-primary" onclick="next()">つぎへ</button>
+      </div>
+    </section>
+
+    <!-- STEP 6: 次どうできそう -->
+    <section class="step" data-step="6">
+      <p class="q">次に同じことが起きたら、どうできそう？</p>
+      <p class="hint">ヒント：小さな一歩でOK、できなくても責めないこと</p>
+      <textarea id="f-next" placeholder="例）気になったら一晩おいてみる、安心する音楽を聴く"></textarea>
+      <div class="row">
+        <button class="btn-ghost" onclick="back()">もどる</button>
+        <button class="btn-primary" onclick="finish()">まとめを見る</button>
+      </div>
+    </section>
+
+    <!-- STEP 7: まとめ -->
+    <section class="step summary" data-step="7">
+      <div id="summaryBody"></div>
+      <div class="row">
+        <button class="btn-ghost" onclick="restart()">書き直す</button>
+        <button class="btn-primary" onclick="saveEntry()">保存する</button>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- ========== 記録一覧（折りたたみ） ========== -->
+  <button class="acc-toggle" id="accToggleList" aria-expanded="false" onclick="toggleAccList()">
+    これまでの記録 <span class="chev">▾</span>
+  </button>
+  <div class="acc-body acc-list" id="entryListWrap"><div class="acc-inner card"><div id="entryList"></div></div></div>
+
+  <!-- ========== ちいさな可視化（折りたたみ・初期は閉じる） ========== -->
+  <button class="acc-toggle" id="accToggle" aria-expanded="false" onclick="toggleAcc()">
+    体の反応の傾向 <span class="chev">▾</span>
+  </button>
+  <div class="acc-body" id="bodyChartWrap"><div class="acc-inner card"><div id="bodyChart"></div></div></div>
+</div>
+
+<script>
+/* =================================================================
+   1) データ層（Store）
+    -----------------------------------------------------------------
+   保存・読み込み・削除を「この4つの関数だけ」に閉じ込めています。
+   将来 Googleアカウント保存（Firestore）に変えるときは、
+   ここの中身だけ書き換えれば、画面側のコードは一切触らずに済みます。
+   localStorage = ブラウザ内の保存箱。閉じても消えません（同じ端末・同じブラウザ内）。
+   try/catch で、保存が使えない環境でも落ちないようにしています。
+   ================================================================= */
+const Store = {
+  KEY: 'harel.entries.v1',
+  list(){
+    try { return JSON.parse(localStorage.getItem(this.KEY)) || []; }
+    catch(e){ return []; }
+  },
+  save(entry){
+    const all = this.list();
+    all.unshift(entry);                 // 新しいものを先頭に
+    try { localStorage.setItem(this.KEY, JSON.stringify(all)); }
+    catch(e){ alert('この環境では保存できないみたい。ファイルを開いて使うと保存されます。'); }
+    return all;
+  },
+  remove(id){
+    const all = this.list().filter(e => e.id !== id);
+    try { localStorage.setItem(this.KEY, JSON.stringify(all)); } catch(e){}
+    return all;
+  }
+};
+
+/* =================================================================
+   2) ウィザードの進む・戻る
+   -----------------------------------------------------------------
+   各ステップは <section class="step"> 。
+   "is-active" クラスが付いた1枚だけ表示し、JSで付け替えています。
+   ================================================================= */
+let current = 1;
+const steps = document.querySelectorAll('.step');
+
+function show(n){
+  steps.forEach(s => s.classList.toggle('is-active', Number(s.dataset.step) === n));
+  current = n;
+  // メーター更新（1〜6は割合、7=まとめは満タン表示）
+  const total = 6;
+  const fill = document.getElementById('meterFill');
+  const label = document.getElementById('meterLabel');
+  if(n <= total){ fill.style.width = (n / total * 100) + '%'; label.textContent = n + ' / ' + total; }
+  else { fill.style.width = '100%'; label.textContent = 'まとめ'; }
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+function next(){ show(current + 1); }
+function back(){ show(current - 1); }
+
+/* 今日の日付を初期値に入れておく */
+document.getElementById('f-date').valueAsDate = new Date();
+
+/* 時制の選択に応じて：
+   ついさっき/今日 → 今日の日付、昨日 → 前日、もっと前 → 日付欄を表示して手入力 */
+document.querySelectorAll('input[name="whenRel"]').forEach(r =>
+  r.addEventListener('change', applyWhenRel)
+);
+function applyWhenRel(){
+  const rel = document.querySelector('input[name="whenRel"]:checked');
+  if(!rel) return;
+  const wrap = document.getElementById('dateField');
+  const dateInput = document.getElementById('f-date');
+  if(rel.value === 'もっと前'){
+    wrap.style.display = '';           // 日付欄を出して手入力してもらう
+  } else {
+    wrap.style.display = 'none';       // 自動入力なので欄は隠す
+    const d = new Date();
+    if(rel.value === '昨日') d.setDate(d.getDate() - 1);
+    dateInput.valueAsDate = d;
+  }
+}
+
+/* =================================================================
+   3) 入力内容を集める → まとめ画面を作る
+   ================================================================= */
+let draft = null;
+
+function collect(){
+  // ラジオ（時制）
+  const rel = document.querySelector('input[name="whenRel"]:checked');
+  // チェックボックス（体の反応）→ チェックされた値の配列
+  const body = [...document.querySelectorAll('#f-body input:checked')].map(i => i.value);
+  return {
+    id: Date.now().toString(),          // 簡易ID（保存時刻ミリ秒）
+    createdAt: new Date().toISOString(),
+    what:      document.getElementById('f-what').value.trim(),
+    whenRel:   rel ? rel.value : '',
+    date:      document.getElementById('f-date').value,
+    where:     document.getElementById('f-where').value.trim(),
+    who:       document.getElementById('f-who').value.trim(),
+    body:      body,
+    bodyOther: document.getElementById('f-bodyOther').value.trim(),
+    why:       document.getElementById('f-why').value.trim(),
+    next:      document.getElementById('f-next').value.trim()
+  };
+}
+
+function row(dt, dd){
+  if(!dd) return '';
+  return `<dt>${dt}</dt><dd>${escapeHtml(dd)}</dd>`;
+}
+
+function finish(){
+  draft = collect();
+  const d = draft;
+  const tags = d.body.map(b => `<span class="tag">${escapeHtml(b)}</span>`).join('');
+  document.getElementById('summaryBody').innerHTML = `
+    <h3>今日の可視化</h3>
+    <dl>
+      ${row('もやもや', d.what)}
+      ${row('いつ', [d.whenRel, d.date].filter(Boolean).join(' / '))}
+      ${row('どこで', d.where)}
+      ${row('だれと', d.who)}
+      ${ tags ? `<dt>体の反応</dt><dd>${tags}${d.bodyOther ? '<br>'+escapeHtml(d.bodyOther):''}</dd>` : '' }
+      ${row('よぎった考え', d.why)}
+      ${row('次にできそうなこと', d.next)}
+    </dl>`;
+  show(7);
+}
+
+function saveEntry(){
+  if(!draft) return;
+  Store.save(draft);
+  draft = null;
+  render();          // 一覧と集計を更新
+  restart();
+  alert('保存しました。');
+}
+
+function restart(){
+  // 入力欄をリセットして最初へ
+  document.querySelectorAll('#wizard textarea, #wizard input[type=text]').forEach(i => i.value = '');
+  document.querySelectorAll('#wizard input:checked').forEach(i => i.checked = false);
+  document.getElementById('f-date').valueAsDate = new Date();
+  show(1);
+}
+
+/* =================================================================
+   4) 記録一覧 ＆ 体の反応の集計（ちいさな可視化）
+   ================================================================= */
+function render(){
+  const all = Store.list();
+
+  // --- 一覧 ---
+  const list = document.getElementById('entryList');
+  if(all.length === 0){
+    list.innerHTML = '<p class="empty">まだ記録はありません。</p>';
+  } else {
+    list.innerHTML = all.map(e => `
+      <div class="entry">
+        <div class="meta">${formatDate(e.createdAt)}</div>
+        <button onclick="del('${e.id}')">削除</button>
+      </div>`).join('');
+  }
+
+  // --- 体の反応の集計（チェック数を数えて棒の長さに） ---
+  const labels = ['もやもや・不安','頭痛・眩暈','動悸・息切れ','パニック','手・足の反応','その他'];
+  const counts = {}; labels.forEach(l => counts[l] = 0);
+  all.forEach(e => (e.body || []).forEach(b => { if(b in counts) counts[b]++; }));
+  const max = Math.max(1, ...Object.values(counts));
+  const chart = document.getElementById('bodyChart');
+  if(all.length === 0){
+    chart.innerHTML = '<p class="empty">記録がたまると傾向が見えてきます。</p>';
+  } else {
+    chart.innerHTML = labels.map(l => `
+      <div class="bar-row">
+        <span class="name">${l}</span>
+        <span class="bar"><span style="width:${counts[l]/max*100}%"></span></span>
+        <span class="n">${counts[l]}</span>
+      </div>`).join('');
+  }
+}
+
+function del(id){
+  if(confirm('この記録を削除する？')){ Store.remove(id); render(); }
+}
+
+/* アコーディオンの開閉 */
+function toggleAcc(){
+  const btn = document.getElementById('accToggle');
+  const body = document.getElementById('bodyChartWrap');
+  const open = btn.getAttribute('aria-expanded') === 'true';
+  btn.setAttribute('aria-expanded', String(!open));
+  body.classList.toggle('open', !open);
+}
+
+function toggleAccList(){
+  const btn = document.getElementById('accToggleList');
+  const body = document.getElementById('entryListWrap');
+  const open = btn.getAttribute('aria-expanded') === 'true';
+  btn.setAttribute('aria-expanded', String(!open));
+  body.classList.toggle('open', !open);
+}
+
+/* =================================================================
+   5) ちょっとした補助
+   ================================================================= */
+function escapeHtml(s){
+  return (s||'').replace(/[&<>"']/g, c => (
+    {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]
+  ));
+}
+function formatDate(iso){
+  const d = new Date(iso);
+  return `${d.getMonth()+1}/${d.getDate()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+}
+
+/* =================================================================
+   6) 起動演出（スプラッシュ）
+   -----------------------------------------------------------------
+   流れ：フェードイン(1s) → 表示キープ(3s) → フェードアウト(1s)
+        → スプラッシュを消して、UI(.wrap)をフェードイン。
+   時間は下の3つの数値（ms）を変えれば調整できます。
+   ================================================================= */
+(function intro(){
+  const splash = document.getElementById('splash');
+  const wrap = document.querySelector('.wrap');
+  const FADE_IN = 50;     // 直後にフェードイン開始
+  const HOLD    = 3000;   // ロゴを見せておく時間（3秒）
+  const FADE_OUT= 1000;   // フェードアウトにかかる時間
+
+  setTimeout(() => splash.classList.add('show'), FADE_IN);
+  setTimeout(() => {
+    splash.classList.remove('show');
+    splash.classList.add('hide');           // フェードアウト
+    setTimeout(() => {
+      wrap.classList.add('show');
+      document.querySelector('footer').classList.add('show');
+    }, 300); // 少し遅れてUIがフェードイン
+    setTimeout(() => splash.remove(), FADE_OUT); // 消えたら要素ごと撤去
+  }, FADE_IN + HOLD);
+})();
+
+/* 起動時に一覧を描画 */
+render();
+document.getElementById('cr-year').textContent = new Date().getFullYear();
+</script>
+<footer>
+  &copy; <span id="cr-year"></span> harel. All rights reserved.
+</footer>
+</body>
+</html>
