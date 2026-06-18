@@ -1677,20 +1677,6 @@ function esc(s) {
    初期化
 =================================================== */
 /* 初回訪問時にデモ銘柄をプリロード */
-(function seedDemo() {
-  if (loadList().length > 0) return;
-  const seeds = [
-    { ticker: '7203', market: 'JP' },
-    { ticker: '9984', market: 'JP' },
-    { ticker: 'AAPL', market: 'US' },
-  ];
-  const list = seeds.map(({ ticker, market: mkt }) => {
-    const data = fetchDemoData(ticker, mkt);
-    return { id: data.id, data, memo: '', shares: 10, addedAt: new Date().toISOString() };
-  });
-  saveList(list);
-})();
-
 render();
 document.getElementById('cr-year').textContent = new Date().getFullYear();
 
