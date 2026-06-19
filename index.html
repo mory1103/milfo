@@ -855,10 +855,12 @@ header {
   transform: translateY(0);
 }
 .popup-icon {
-  font-size: 1.6rem;
-  margin-bottom: 12px;
+  font-size: 1.2rem;
+  margin-right: 6px;
 }
 .popup-title {
+  display: flex;
+  align-items: center;
   font-size: 1rem;
   font-weight: 600;
   color: var(--ink);
@@ -968,8 +970,7 @@ footer {
 
 <div class="popup-overlay" id="popup">
   <div class="popup">
-    <div class="popup-icon">⚠️</div>
-    <div class="popup-title">ご利用前にお読みください</div>
+    <div class="popup-title"><span class="popup-icon">⚠️</span>ご利用前にお読みください</div>
     <div class="popup-body">
       <ul>
         <li>本アプリは投資シミュレーション目的のプロトタイプです。</li>
@@ -1006,7 +1007,7 @@ footer {
         <button class="mkt-btn"        id="btnUS" onclick="setMarket('US')">US</button>
       </div>
       <input class="search-input" id="tickerInput"
-        placeholder="例）7203 / AAPL / Toyota / Apple"
+        placeholder="例）7203 / Toyota"
         autocomplete="off" autocorrect="off" spellcheck="false"
         oninput="onTickerInput()"
         onkeydown="onTickerKeydown(event)">
@@ -1015,10 +1016,10 @@ footer {
     </div>
     <div class="search-inline-alert" id="inlineAlert" style="display:none"></div>
     <div class="search-hint" id="searchHint">
-      東証：4桁証券コード（例 7203, 9984）　US：ティッカー（例 AAPL, TSLA, MSFT）
+      東証：証券コード（例 7203）　US：ティッカー（例 AAPL）
     </div>
     <div class="search-hint search-hint-static" style="margin-top:4px;">
-      企業名のフリーワードでも検索できます（英語で入力：Toyota / Apple / Samsung）
+      企業名のフリーワードでも検索できます（英語で入力：例 Toyota）
     </div>
   </div>
 
@@ -1214,7 +1215,7 @@ function setMarket(m){
         ? '東証：4桁証券コード（例 7203, 9984, 8306）'
         : 'US：ティッカーシンボル（例 AAPL, TSLA, NVDA, MSFT）';
     input.placeholder =
-      m === 'JP' ? '例）7203 / 9984 / トヨタ' : '例）AAPL / TSLA / Apple';
+      m === 'JP' ? '例）7203 / Toyota' : '例）AAPL / Toyota';
 
     /* フェードイン */
     hints.forEach(el => el.style.opacity = '1');
@@ -1228,17 +1229,20 @@ function setMarket(m){
    API_BASE に バックエンドのURLを入れると本番モード。
    null にするとデモデータモードで動く。
 =================================================== */
-const API_BASE = '';
+const API_BASE = window.location.protocol === 'file:' ? null : '';
 
 /* ===================================================
    本番モード：バックエンドから銘柄情報を取得
 =================================================== */
 async function fetchStockFromAPI(ticker, mkt) {
-  const res = await fetch(`${API_BASE}/api/stock?ticker=${encodeURIComponent(ticker)}&market=${mkt}`);
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error(err.detail || `HTTP ${res.status}`);
+  let res;
+  try {
+    res = await fetch(`${API_BASE}/api/stock?ticker=${encodeURIComponent(ticker)}&market=${mkt}`);
+  } catch {
+    throw new Error('NETWORK');
   }
+  if (res.status === 404) throw new Error('NOT_FOUND');
+  if (!res.ok) throw new Error('SERVER_ERROR');
   return res.json();
 }
 
@@ -1541,7 +1545,7 @@ async function addStock() {
 
   try {
     let data;
-    if (API_BASE) {
+    if (API_BASE != null) {
       /* 本番モード：バックエンドから取得 */
       data = await fetchStockFromAPI(ticker, market);
       /* 為替レートも更新（USD_JPY をグローバルに反映）*/
@@ -1557,7 +1561,14 @@ async function addStock() {
     render();
     input.value = '';
   } catch(e) {
-    showToast('取得失敗: ' + e.message);
+    const msg = e.message;
+    if (msg === 'NOT_FOUND') {
+      showInlineAlert('該当する銘柄がありません');
+    } else if (msg === 'NETWORK') {
+      showInlineAlert('サーバーに接続できません。バックエンドが起動しているか確認してください。');
+    } else {
+      showInlineAlert('取得に失敗しました。しばらくしてから再試行してください。');
+    }
   } finally {
     btn.disabled = false;
     btn.textContent = '追加';
