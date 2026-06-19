@@ -190,6 +190,9 @@ def get_stock(
         raise HTTPException(status_code=502, detail=f"取得失敗: {e}")
 
 
+JP_EXCHANGES = {"JPX", "TSE", "OSA"}
+US_EXCHANGES = {"NMS", "NYQ", "NGM", "PCX", "ASE", "NasdaqGS", "NasdaqGM", "NasdaqCM"}
+
 # ── /api/search ───────────────────────────────────────────────────────
 @app.get("/api/search")
 def search_stock(
@@ -197,9 +200,11 @@ def search_stock(
     market: str = Query("JP"),
 ):
     try:
-        results = yf.Search(q, max_results=8).quotes
+        results = yf.Search(q, max_results=20).quotes
     except Exception as e:
         raise HTTPException(status_code=502, detail=f"search error: {e}")
+
+    allowed = JP_EXCHANGES if market.upper() == "JP" else US_EXCHANGES
 
     return [
         {
@@ -210,6 +215,7 @@ def search_stock(
         }
         for r in results
         if r.get("quoteType") in ("EQUITY", "ETF")
+        and r.get("exchange") in allowed
     ]
 
 
