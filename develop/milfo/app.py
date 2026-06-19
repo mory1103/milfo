@@ -15,6 +15,8 @@ milfo — バックエンド API
 
 from fastapi import FastAPI, Query, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 import yfinance as yf
 import sqlite3
 import json
@@ -25,6 +27,8 @@ from typing import Optional
 
 app = FastAPI(title="milfo API", version="0.2.0")
 
+app.mount("/static", StaticFiles(directory=Path(__file__).resolve().parent), name="static")
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -32,10 +36,15 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# ── フロントエンド配信 ────────────────────────────────────────────────
+@app.get("/")
+def serve_index():
+    return FileResponse(Path(__file__).resolve().parent / "index.html")
+
 # ── キャッシュ設定 ────────────────────────────────────────────────────
 STOCK_TTL = 6 * 3600   # 銘柄データ: 6時間
 RATE_TTL  = 600        # 為替レート: 10分
-DB_PATH   = Path(__file__).parent / "cache.db"
+DB_PATH   = Path(__file__).resolve().parent / "cache.db"
 
 _db_lock = threading.Lock()
 
@@ -184,6 +193,9 @@ def get_stock(
         raise HTTPException(status_code=502, detail=f"取得失敗: {e}")
 
 
+JP_EXCHANGES = {"JPX", "TSE", "OSA"}
+US_EXCHANGES = {"NMS", "NYQ", "NGM", "PCX", "ASE", "NasdaqGS", "NasdaqGM", "NasdaqCM"}
+
 # ── /api/search ───────────────────────────────────────────────────────
 @app.get("/api/search")
 def search_stock(
@@ -191,9 +203,11 @@ def search_stock(
     market: str = Query("JP"),
 ):
     try:
-        results = yf.Search(q, max_results=8).quotes
+        results = yf.Search(q, max_results=20).quotes
     except Exception as e:
         raise HTTPException(status_code=502, detail=f"search error: {e}")
+
+    allowed = JP_EXCHANGES if market.upper() == "JP" else US_EXCHANGES
 
     return [
         {
@@ -204,6 +218,7 @@ def search_stock(
         }
         for r in results
         if r.get("quoteType") in ("EQUITY", "ETF")
+        and r.get("exchange") in allowed
     ]
 
 

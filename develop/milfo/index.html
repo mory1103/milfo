@@ -4,6 +4,17 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>milfo — ポートフォリオシミュレーター</title>
+<meta name="description" content="気になる株を、感覚で比べるポートフォリオシミュレーション">
+<meta property="og:title" content="milfo（仮）— ポートフォリオシミュレーター">
+<meta property="og:description" content="気になる株を、感覚で比べるポートフォリオシミュレーション">
+<meta property="og:image" content="/static/OGP.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="milfo（仮）— ポートフォリオシミュレーター">
+<meta name="twitter:description" content="気になる株を、感覚で比べるポートフォリオシミュレーション">
+<meta name="twitter:image" content="/static/OGP.jpg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -855,10 +866,12 @@ header {
   transform: translateY(0);
 }
 .popup-icon {
-  font-size: 1.6rem;
-  margin-bottom: 12px;
+  font-size: 1.2rem;
+  margin-right: 6px;
 }
 .popup-title {
+  display: flex;
+  align-items: center;
   font-size: 1rem;
   font-weight: 600;
   color: var(--ink);
@@ -968,8 +981,7 @@ footer {
 
 <div class="popup-overlay" id="popup">
   <div class="popup">
-    <div class="popup-icon">⚠️</div>
-    <div class="popup-title">ご利用前にお読みください</div>
+    <div class="popup-title"><span class="popup-icon">⚠️</span>ご利用前にお読みください</div>
     <div class="popup-body">
       <ul>
         <li>本アプリは投資シミュレーション目的のプロトタイプです。</li>
@@ -1006,7 +1018,7 @@ footer {
         <button class="mkt-btn"        id="btnUS" onclick="setMarket('US')">US</button>
       </div>
       <input class="search-input" id="tickerInput"
-        placeholder="例）7203 / AAPL / Toyota / Apple"
+        placeholder="例）7203 / Toyota"
         autocomplete="off" autocorrect="off" spellcheck="false"
         oninput="onTickerInput()"
         onkeydown="onTickerKeydown(event)">
@@ -1015,10 +1027,10 @@ footer {
     </div>
     <div class="search-inline-alert" id="inlineAlert" style="display:none"></div>
     <div class="search-hint" id="searchHint">
-      東証：4桁証券コード（例 7203, 9984）　US：ティッカー（例 AAPL, TSLA, MSFT）
+      東証：証券コード（例 7203）　US：ティッカー（例 AAPL）
     </div>
     <div class="search-hint search-hint-static" style="margin-top:4px;">
-      企業名のフリーワードでも検索できます（英語で入力：Toyota / Apple / Samsung）
+      企業名のフリーワードでも検索できます（英語で入力：例 Toyota）
     </div>
   </div>
 
@@ -1068,21 +1080,18 @@ footer {
 <footer>
   <div class="footer-actions">
   <div class="footer-share">
-    <a class="share-btn x" href="#" onclick="return false;">
+    <a class="share-btn x" href="https://twitter.com/intent/tweet?text=気になる株を感覚で比べるポートフォリオシミュレーション%20%23milfo&url=https%3A%2F%2Fmilfo.app" target="_blank" rel="noopener">
       <svg viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.253 5.622L18.244 2.25zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77z"/></svg>
       X でシェア
     </a>
-    <a class="share-btn insta" href="#" onclick="return false;">
-      <svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
-      Instagram
-    </a>
-    <a class="share-btn line" href="#" onclick="return false;">
+
+    <a class="share-btn line" href="https://social-plugins.line.me/lineit/share?url=https%3A%2F%2Fmilfo.app&text=気になる株を感覚で比べるポートフォリオシミュレーション" target="_blank" rel="noopener">
       <svg viewBox="0 0 24 24"><path d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.627-.63h2.386c.349 0 .63.285.63.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.06-.023.136-.033.194-.033.195 0 .375.104.495.254l2.462 3.33V8.108c0-.345.282-.63.63-.63.345 0 .63.285.63.63v4.771zm-5.741 0c0 .344-.282.629-.631.629-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.627-.63.349 0 .631.285.631.63v4.771zm-2.466.629H4.917c-.345 0-.63-.285-.63-.629V8.108c0-.345.285-.63.63-.63.348 0 .63.285.63.63v4.141h1.756c.348 0 .629.283.629.63 0 .344-.281.629-.629.629M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.070 9.436-6.975C23.176 14.393 24 12.458 24 10.314"/></svg>
       LINE
     </a>
   </div>
   <div class="footer-contact">
-    <a href="#">お問い合わせ・不具合報告はこちら<svg style="width:11px;height:11px;fill:currentColor;margin-left:3px;vertical-align:middle;" viewBox="0 0 24 24"><path d="M14 5c0-.552.448-1 1-1h5c.552 0 1 .448 1 1v5c0 .552-.448 1-1 1s-1-.448-1-1V7.414l-7.293 7.293c-.391.391-1.024.391-1.414 0s-.391-1.024 0-1.414L17.586 6H15c-.552 0-1-.448-1-1zm-9 2c-1.103 0-2 .897-2 2v10c0 1.103.897 2 2 2h10c1.103 0 2-.897 2-2v-4c0-.552.448-1 1-1s1 .448 1 1v4c0 2.206-1.794 4-4 4H5c-2.206 0-4-1.794-4-4V9c0-2.206 1.794-4 4-4h4c.552 0 1 .448 1 1s-.448 1-1 1H5z"/></svg></a>
+    <a href="https://docs.google.com/forms/d/e/1FAIpQLSeJfaoSC1E-4w-MuKMcqNnWuoIlsvxCp-tAEizqfcjS72IasA/viewform?usp=publish-editor" target="_blank" rel="noopener">お問い合わせ・不具合報告はこちら<svg style="width:11px;height:11px;fill:currentColor;margin-left:3px;vertical-align:middle;" viewBox="0 0 24 24"><path d="M14 5c0-.552.448-1 1-1h5c.552 0 1 .448 1 1v5c0 .552-.448 1-1 1s-1-.448-1-1V7.414l-7.293 7.293c-.391.391-1.024.391-1.414 0s-.391-1.024 0-1.414L17.586 6H15c-.552 0-1-.448-1-1zm-9 2c-1.103 0-2 .897-2 2v10c0 1.103.897 2 2 2h10c1.103 0 2-.897 2-2v-4c0-.552.448-1 1-1s1 .448 1 1v4c0 2.206-1.794 4-4 4H5c-2.206 0-4-1.794-4-4V9c0-2.206 1.794-4 4-4h4c.552 0 1 .448 1 1s-.448 1-1 1H5z"/></svg></a>
   </div>
   </div>
   データはデモ用フィクションです。実際の株価・指標とは異なります。投資は自己責任で。このツールは投資助言を行いません。
@@ -1129,7 +1138,7 @@ function onTickerInput() {
 }
 
 async function fetchSuggest(q) {
-  if (!API_BASE) return;
+  if (API_BASE === null) return;
   try {
     const res = await fetch(`${API_BASE}/api/search?q=${encodeURIComponent(q)}&market=${market}`);
     if (!res.ok) return;
@@ -1217,7 +1226,7 @@ function setMarket(m){
         ? '東証：4桁証券コード（例 7203, 9984, 8306）'
         : 'US：ティッカーシンボル（例 AAPL, TSLA, NVDA, MSFT）';
     input.placeholder =
-      m === 'JP' ? '例）7203 / 9984 / トヨタ' : '例）AAPL / TSLA / Apple';
+      m === 'JP' ? '例）7203 / Toyota' : '例）AAPL / Toyota';
 
     /* フェードイン */
     hints.forEach(el => el.style.opacity = '1');
@@ -1231,17 +1240,20 @@ function setMarket(m){
    API_BASE に バックエンドのURLを入れると本番モード。
    null にするとデモデータモードで動く。
 =================================================== */
-const API_BASE = 'http://localhost:8000';
+const API_BASE = window.location.protocol === 'file:' ? null : '';
 
 /* ===================================================
    本番モード：バックエンドから銘柄情報を取得
 =================================================== */
 async function fetchStockFromAPI(ticker, mkt) {
-  const res = await fetch(`${API_BASE}/api/stock?ticker=${encodeURIComponent(ticker)}&market=${mkt}`);
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error(err.detail || `HTTP ${res.status}`);
+  let res;
+  try {
+    res = await fetch(`${API_BASE}/api/stock?ticker=${encodeURIComponent(ticker)}&market=${mkt}`);
+  } catch {
+    throw new Error('NETWORK');
   }
+  if (res.status === 404) throw new Error('NOT_FOUND');
+  if (!res.ok) throw new Error('SERVER_ERROR');
   return res.json();
 }
 
@@ -1544,23 +1556,22 @@ async function addStock() {
 
   try {
     let data;
-    if (API_BASE) {
-      /* 本番モード：バックエンドから取得 */
-      data = await fetchStockFromAPI(ticker, market);
-      /* 為替レートも更新（USD_JPY をグローバルに反映）*/
-      USD_JPY = await fetchRateFromAPI();
-    } else {
-      /* デモモード：フィクションデータ */
-      await new Promise(r => setTimeout(r, 600));
-      data = fetchDemoData(ticker, market);
-    }
+    data = await fetchStockFromAPI(ticker, market);
+    USD_JPY = await fetchRateFromAPI();
 
     list.unshift({ id, data, memo: '', shares: 10, addedAt: new Date().toISOString() });
     saveList(list);
     render();
     input.value = '';
   } catch(e) {
-    showToast('取得失敗: ' + e.message);
+    const msg = e.message;
+    if (msg === 'NOT_FOUND') {
+      showInlineAlert('該当する銘柄がありません');
+    } else if (msg === 'NETWORK') {
+      showInlineAlert('サーバーに接続できません。バックエンドが起動しているか確認してください。');
+    } else {
+      showInlineAlert('取得に失敗しました。しばらくしてから再試行してください。');
+    }
   } finally {
     btn.disabled = false;
     btn.textContent = '追加';
@@ -1680,20 +1691,6 @@ function esc(s) {
    初期化
 =================================================== */
 /* 初回訪問時にデモ銘柄をプリロード */
-(function seedDemo() {
-  if (loadList().length > 0) return;
-  const seeds = [
-    { ticker: '7203', market: 'JP' },
-    { ticker: '9984', market: 'JP' },
-    { ticker: 'AAPL', market: 'US' },
-  ];
-  const list = seeds.map(({ ticker, market: mkt }) => {
-    const data = fetchDemoData(ticker, mkt);
-    return { id: data.id, data, memo: '', shares: 10, addedAt: new Date().toISOString() };
-  });
-  saveList(list);
-})();
-
 render();
 document.getElementById('cr-year').textContent = new Date().getFullYear();
 
