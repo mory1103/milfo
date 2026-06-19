@@ -38,6 +38,10 @@ app.add_middleware(
 def serve_index():
     return FileResponse(Path(__file__).resolve().parent / "index.html")
 
+@app.get("/ogp.jpg")
+def serve_ogp():
+    return FileResponse(Path(__file__).resolve().parent / "OGP.jpg", media_type="image/jpeg")
+
 # ── キャッシュ設定 ────────────────────────────────────────────────────
 STOCK_TTL = 6 * 3600   # 銘柄データ: 6時間
 RATE_TTL  = 600        # 為替レート: 10分
