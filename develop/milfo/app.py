@@ -16,7 +16,6 @@ milfo — バックエンド API
 from fastapi import FastAPI, Query, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
-from fastapi.staticfiles import StaticFiles
 import yfinance as yf
 import sqlite3
 import json
@@ -26,8 +25,6 @@ from pathlib import Path
 from typing import Optional
 
 app = FastAPI(title="milfo API", version="0.2.0")
-
-app.mount("/static", StaticFiles(directory=Path(__file__).resolve().parent), name="static")
 
 app.add_middleware(
     CORSMiddleware,
@@ -40,6 +37,10 @@ app.add_middleware(
 @app.get("/")
 def serve_index():
     return FileResponse(Path(__file__).resolve().parent / "index.html")
+
+@app.get("/ogp.jpg")
+def serve_ogp():
+    return FileResponse(Path(__file__).resolve().parent / "OGP.jpg", media_type="image/jpeg")
 
 # ── キャッシュ設定 ────────────────────────────────────────────────────
 STOCK_TTL = 6 * 3600   # 銘柄データ: 6時間
