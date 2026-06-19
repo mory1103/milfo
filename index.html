@@ -1127,7 +1127,7 @@ function onTickerInput() {
 }
 
 async function fetchSuggest(q) {
-  if (!API_BASE) return;
+  if (API_BASE === null) return;
   try {
     const res = await fetch(`${API_BASE}/api/search?q=${encodeURIComponent(q)}&market=${market}`);
     if (!res.ok) return;
@@ -1545,16 +1545,8 @@ async function addStock() {
 
   try {
     let data;
-    if (API_BASE != null) {
-      /* 本番モード：バックエンドから取得 */
-      data = await fetchStockFromAPI(ticker, market);
-      /* 為替レートも更新（USD_JPY をグローバルに反映）*/
-      USD_JPY = await fetchRateFromAPI();
-    } else {
-      /* デモモード：フィクションデータ */
-      await new Promise(r => setTimeout(r, 600));
-      data = fetchDemoData(ticker, market);
-    }
+    data = await fetchStockFromAPI(ticker, market);
+    USD_JPY = await fetchRateFromAPI();
 
     list.unshift({ id, data, memo: '', shares: 10, addedAt: new Date().toISOString() });
     saveList(list);
