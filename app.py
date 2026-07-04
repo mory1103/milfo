@@ -111,7 +111,12 @@ def calc_scores(info: dict) -> dict:
     def clamp(v, lo=0, hi=100):
         return max(lo, min(hi, round(v)))
 
-    dy       = info.get("dividendYield") or 0
+    # dividendYield は yfinance 1.5.1 では「%表記済み」で返る（例: 2.8 = 2.8%）。
+    # 2026-07-04 に実測確認: 8058.T → 2.8（実利回り2.47%）/ AAPL → 0.35（実利回り0.34%）。
+    # 旧コードは小数（0.028 等）前提で dy/0.06*100 していたため全配当銘柄が clamp で
+    # 満点100に張り付いていた。既存係数 0.06（=6%で満点）を変えずに直すため、
+    # ここで一度だけ %→小数 に正規化してから既存式に流す。
+    dy       = (info.get("dividendYield") or 0) / 100
     dividend = clamp(dy / 0.06 * 100)
 
     rg     = info.get("revenueGrowth") or info.get("earningsGrowth") or 0
@@ -119,7 +124,12 @@ def calc_scores(info: dict) -> dict:
 
     pe        = info.get("trailingPE")  or 0
     pbr       = info.get("priceToBook") or 0
-    per_score = clamp(100 - pe  * 2)  if pe  > 0 else 50
+    # 方針(2-2): PER が欠損または 0 以下になるのは主に赤字企業（EPS<=0 で PER 算出不能）。
+    # 旧コードの中立 50 では赤字企業が「そこそこ割安」に見えてしまうため、
+    # 「割安の根拠なし」として低スコア 20 を与える（指定レンジ 0〜30 の中庸値）。
+    # 0 にしない理由: PER 欠損には一時的なデータ欠落も混ざるため、最低点は避ける。
+    # 一方 PBR の欠損は赤字シグナルとは限らない単なるデータ欠落なので中立 50 のまま。
+    per_score = clamp(100 - pe  * 2)  if pe  > 0 else 20
     pbr_score = clamp(100 - pbr * 15) if pbr > 0 else 50
     value     = clamp((per_score + pbr_score) / 2)
 
@@ -152,7 +162,9 @@ def _fetch_from_yfinance(sym: str, ticker: str, market: str) -> dict:
         "change":   change_pct,
         "per":      round(info.get("trailingPE")      or 0, 1),
         "pbr":      round(info.get("priceToBook")     or 0, 1),
-        "divYield": round((info.get("dividendYield")  or 0) * 100, 2),
+        # dividendYield は既に%表記（yfinance 1.5.1、実測確認済み）なので *100 しない。
+        # 旧コードの *100 は 8058.T が「280%」と表示される二重換算バグだった。
+        "divYield": round(info.get("dividendYield")  or 0, 2),
         **calc_scores(info),
     }
 
