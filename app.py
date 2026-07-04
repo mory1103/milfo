@@ -111,15 +111,26 @@ def calc_scores(info: dict) -> dict:
     def clamp(v, lo=0, hi=100):
         return max(lo, min(hi, round(v)))
 
-    dy       = info.get("dividendYield") or 0
-    dividend = clamp(dy / 0.06 * 100)
+    # dividendYield は yfinance 1.5.1 では既に %形式（実測: 利回り3% → 3.0）。
+    # 無配銘柄はキー欠損で None → 0。この %値をスコアと divYield 表示の両方で使う。
+    dy_pct   = info.get("dividendYield") or 0
+    dividend = clamp(dy_pct / 6.0 * 100)      # 利回り6%で100点（満点基準は不変）
 
-    rg     = info.get("revenueGrowth") or info.get("earningsGrowth") or 0
+    # revenueGrowth を優先、欠損/0 のとき earningsGrowth で代用（挙動は従来どおり）。
+    # どちらを使ったかを growthSource として外に出す。
+    rev = info.get("revenueGrowth")
+    ern = info.get("earningsGrowth")
+    if rev:
+        rg, growth_source = rev, "revenue"
+    elif ern:
+        rg, growth_source = ern, "earnings"
+    else:
+        rg, growth_source = 0, "none"
     growth = clamp(rg / 0.30 * 100)
 
     pe        = info.get("trailingPE")  or 0
     pbr       = info.get("priceToBook") or 0
-    per_score = clamp(100 - pe  * 2)  if pe  > 0 else 50
+    per_score = clamp(100 - pe  * 2)  if pe  > 0 else 25   # PER取得不能(赤字含む)＝警戒で25
     pbr_score = clamp(100 - pbr * 15) if pbr > 0 else 50
     value     = clamp((per_score + pbr_score) / 2)
 
@@ -131,7 +142,12 @@ def calc_scores(info: dict) -> dict:
     cur  = info.get("currentPrice") or info.get("regularMarketPrice") or 0
     momentum = clamp((cur - lo52) / (hi52 - lo52) * 100) if hi52 > lo52 and cur > 0 else 50
 
-    return {"div": dividend, "growth": growth, "value": value, "stable": stable, "momentum": momentum}
+    return {
+        "div": dividend, "growth": growth, "value": value,
+        "stable": stable, "momentum": momentum,
+        "divYield": round(dy_pct, 2),        # %形式に正規化済みの利回り
+        "growthSource": growth_source,
+    }
 
 
 # ── yfinance から銘柄データを取得してレスポンス形式に整形 ──────────────
@@ -152,7 +168,7 @@ def _fetch_from_yfinance(sym: str, ticker: str, market: str) -> dict:
         "change":   change_pct,
         "per":      round(info.get("trailingPE")      or 0, 1),
         "pbr":      round(info.get("priceToBook")     or 0, 1),
-        "divYield": round((info.get("dividendYield")  or 0) * 100, 2),
+        # divYield は calc_scores 側で %形式に正規化して返す（単位の一元管理）
         **calc_scores(info),
     }
 

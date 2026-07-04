@@ -483,6 +483,13 @@ header {
   flex: none;
 }
 
+/* revenueGrowth 欠損で earningsGrowth 代用時の注記 */
+.growth-note {
+  font-size: .64rem;
+  color: var(--muted2);
+  margin: -2px 0 0 66px;
+}
+
 .tags-inline {
   display: flex;
   flex-wrap: wrap;
@@ -1400,6 +1407,7 @@ function renderCard(d, memo, shares) {
         <div class="status-bars">
           ${sbar('配当', 'dividend', d.div)}
           ${sbar('成長', 'growth',   d.growth)}
+          ${d.growthSource === 'earnings' ? '<div class="growth-note">利益成長率ベース</div>' : ''}
           ${sbar('割安', 'value',    d.value)}
           ${sbar('安定', 'stable',   d.stable)}
           ${sbar('勢い', 'momentum', d.momentum)}
