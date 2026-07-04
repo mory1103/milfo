@@ -119,8 +119,19 @@ def calc_scores(info: dict) -> dict:
     dy       = (info.get("dividendYield") or 0) / 100
     dividend = clamp(dy / 0.06 * 100)
 
-    rg     = info.get("revenueGrowth") or info.get("earningsGrowth") or 0
-    growth = clamp(rg / 0.30 * 100)
+    # 方針(2-3): 成長スコアは revenueGrowth（売上成長率）のみで採点する。
+    # 旧コードは欠損時に earningsGrowth へフォールバックしていたが、利益成長は
+    # 一時要因（前年の赤字からの回復等）で数百%に振れ、売上成長とは軸が異なる。
+    # 混在させると「回復しただけの銘柄が成長100点」になり比較の公平性が崩れるため統一。
+    # revenueGrowth が取れない銘柄は中立 50 とし、レスポンスの growthSource に
+    # None（採点根拠なし）を残して「売上データが取れなかった」ことをデータ側で示す。
+    rg = info.get("revenueGrowth")
+    if rg is not None:
+        growth        = clamp(rg / 0.30 * 100)
+        growth_source = "revenue"
+    else:
+        growth        = 50
+        growth_source = None
 
     pe        = info.get("trailingPE")  or 0
     pbr       = info.get("priceToBook") or 0
@@ -141,7 +152,11 @@ def calc_scores(info: dict) -> dict:
     cur  = info.get("currentPrice") or info.get("regularMarketPrice") or 0
     momentum = clamp((cur - lo52) / (hi52 - lo52) * 100) if hi52 > lo52 and cur > 0 else 50
 
-    return {"div": dividend, "growth": growth, "value": value, "stable": stable, "momentum": momentum}
+    return {
+        "div": dividend, "growth": growth, "value": value,
+        "stable": stable, "momentum": momentum,
+        "growthSource": growth_source,  # "revenue" | None（Noneは売上データ欠損＝採点根拠なし）
+    }
 
 
 # ── yfinance から銘柄データを取得してレスポンス形式に整形 ──────────────
