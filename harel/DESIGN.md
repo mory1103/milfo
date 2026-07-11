@@ -41,8 +41,7 @@
   --ink:#173a5c;                 /* 本文（濃紺。白文字は使わない） */
   --muted:rgba(23,58,92,.60);    /* 補助テキスト（半透明の濃紺） */
   --accent:#0ea5e9;              /* スカイブルー（メーター・チェック等） */
-  --accent-deep:#0284c7;         /* グラデーション下端・ゴースト文字 */
-  --accent-bright:#7dd3fc;       /* ボタングラデーションの上端 */
+  --accent-deep:#0284c7;         /* グラデーション下端・ボタン背景の濃い側 */
   --accent-soft:rgba(14,165,233,.14); /* 選択面・タグ背景 */
   --line:rgba(23,58,92,.18);     /* 罫線・入力枠（半透明の濃紺） */
   --radius:20px;
@@ -124,6 +123,22 @@ box-shadow:var(--glass-shadow), inset 0 1px 0 rgba(255,255,255,.55);
   hover の translateY）を無効化する media query を維持する。
 - 既存のクラス名・ID・DOM構造・JSは変更しない（display切替やクラス付替えに
   依存しているため）。
+
+## 8. 追加調整（2026-07-11 実装分）
+
+以下は初回のライトテーマ実装後に加えた調整。セクション5の表を上書きする。
+
+| 項目 | ルール |
+|---|---|
+| フォント | `"Zen Kaku Gothic New"` を第一候補に追加（Google Fonts。`index.html`の`<head>`でpreconnect＋読み込み）。フォールバックは既存のHiragino/Yu Gothic系を維持 |
+| `.btn-primary` 文字色 | 白（`#fff`）＋`text-shadow:0 1px 2px rgba(2,49,74,.35)`で可読性確保。背景グラデーションは白文字とのコントラストを保つため`var(--accent)→var(--accent-deep)`寄りの中〜濃いブルーに調整（旧`accent-bright`起点の明るいグラデーションからの変更）。`.btn-ghost`は透明背景のため文字色は`var(--accent-deep)`のまま据え置き（白だと視認不可のため対象外） |
+| `.opt`（選択肢チップ） | 枠線は維持しつつ`transition:background-color .4s ease, border-color .4s ease`を追加し、選択時の色変化を「ふわっと」させる |
+| ラジオ／チェックボックス本体 | 縁取り（枠線）を撤去。`appearance:none`でネイティブ描画を止め、円/角丸四角のプレーンな面のみに。未選択時は半透明白、選択時は`background-color`が`var(--accent)`へ`.4s ease`でアニメーションしながら塗りつぶされ、`box-shadow`のソフトなグロー（`0 0 0 5px var(--accent-soft)`）が同時に広がる。チェックマークや内側ドットは付けず「面全体の色変化」のみで選択状態を表現 |
+| 入力欄（textarea/input） | 枠線を撤去。代わりに`box-shadow:inset 0 1px 3px rgba(23,58,92,.10)`で控えめな沈み込みを表現し、ガラス面との一体感を保つ |
+| ステップ遷移（次へ／戻る） | `fade`アニメーションを`.35s ease`から`.6s cubic-bezier(.19,1,.22,1)`に変更。`translateY`に加え`scale(.97→1)`と`filter:blur(8px→0)`を追加し、「すりガラスの向こうからピントが合う」ような、よりガラスらしい柔らかい遷移にする |
+| 「これまでの記録」上下の余白 | `#accToggleList`に`margin-top:32px`を追加（ウィザードカードとの間を広げる）。`.acc-list`の`margin-bottom`を`18px→6px`に縮小（次の「体の反応の傾向」との間を詰める） |
+| 共有リンク | footer内、コピーライト表示の上に`.footer-share`を追加。X／LINEへの共有ボタン（milfo本体 `index.html` の実装パターンを踏襲：`https://twitter.com/intent/tweet?...`／`https://social-plugins.line.me/lineit/share?url=...`）。**harelの本番URLが未確定のため、共有URLは`location.href`をJSで動的に埋め込む**（プレースホルダードメインは使わない）。デプロイ先が決まったら固定URLへの差し替えを検討 |
+| footer の高さ | 共有ボタン行が増えた分、`body`の`padding-bottom`を`64px→120px`に拡大し、固定フッターが本文の最後のアコーディオンと重ならないようにする |
 
 ## 7. 検証チェックリスト（実装後に必ず確認）
 
